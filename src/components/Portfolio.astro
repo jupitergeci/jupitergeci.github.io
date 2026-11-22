@@ -1,0 +1,303 @@
+---
+import { band, education, experience, interests, paintings, profile, publications, research, type Locale } from '../data/portfolio';
+import cv from '../../CV.pdf?url';
+import portrait from '../../paints/soyyo.jpg?url';
+import conference from '../../paints/yoyo.jpeg?url';
+import streamVideo from '../../paints/pds70c-stream.mp4?url';
+import streamPoster from '../../paints/pds70c-stream-poster.webp?url';
+import fargopyLogo from '../../paints/fargopy_logo_white.png?url';
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/space-grotesk';
+import '../styles/global.css';
+
+interface Props { locale: Locale }
+
+const { locale } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const languages = [
+  { code: 'en', label: 'English', href: `${base}/` },
+  { code: 'es', label: 'Español', href: `${base}/es/` },
+] as const;
+const canonicalPath = locale === 'en' ? `${base}/` : `${base}/es/`;
+const translate = (value: string | Record<Locale, string>) =>
+  typeof value === 'string' ? value : value[locale];
+const t = {
+  skip: ['Ir al contenido', 'Skip to content'],
+  navigation: ['Navegación principal', 'Main navigation'],
+  language: ['Idioma del sitio', 'Site language'],
+  science: ['Ciencia', 'Science'],
+  cv: ['Currículum', 'Curriculum vitae'],
+  paintings: ['Pinturas', 'Paintings'],
+  music: ['Música', 'Music'],
+  researchLink: ['Ver investigación', 'Explore my research'],
+  paintingsLink: ['Explorar pinturas', 'Browse paintings'],
+  publications: ['Publicaciones', 'Publications'],
+  software: ['Software científico', 'Scientific software'],
+  softwareIntro: [
+    'Como codesarrollador de FARGOpy, genero herramientas abiertas para ejecutar, analizar y visualizar simulaciones FARGO3D. El software integra reconstrucción de campos 2D/3D y diagnósticos reproducibles de la dinámica del gas y polvo.',
+    'As a lead co-developer of FARGOpy, I build open-source tools to run, analyze, and visualize FARGO3D simulations. The software supports 2D/3D field reconstruction and reproducible diagnostics of gas dynamics.',
+  ],
+  softwareLinks: ['Enlaces de FARGOpy', 'FARGOpy links'],
+  ongoing: ['Investigación en curso', 'Ongoing research'],
+  conferenceAlt: [`${profile.name} durante el XXI SOCHIAS Annual Meeting`, `${profile.name} at the XXI SOCHIAS Annual Meeting`],
+  conference: ['XXI SOCHIAS Annual Meeting', 'XXI SOCHIAS Annual Meeting'],
+  streamTitle: ['Streamlines en las simulaciones del disco de PDS 70c', 'Streamlines in the PDS 70c disk'],
+  streamAlt: [
+    'Simulación de streamlines en el disco circumplanetario de PDS 70c',
+    'Simulated streamlines in the circumplanetary disk of PDS 70c',
+  ],
+  streamLink: ['Abrir el video de PDS 70c', 'Open the PDS 70c video'],
+  streamCaption: [
+    'Visualización tridimensional del flujo de gas en el disco circumplanetario de PDS 70c. Cada línea sigue la dirección local del flujo y su color indica la rapidez del gas en km/s.',
+    'Three-dimensional visualization of gas flow in the circumplanetary disk of PDS 70c. Each line follows the local flow direction, and its color indicates the gas speed in km/s.',
+  ],
+  download: ['Descargar CV (PDF)', 'Download CV (PDF)'],
+  education: ['Formación', 'Education'],
+  experience: ['Experiencia', 'Experience'],
+  interests: ['Intereses', 'Interests'],
+  galleryLead: ['Astrofísica y surrealismo al óleo.', 'Astrophysics and surrealism in oils.'],
+  galleryIntro: [
+    'En mis cuadros, observatorios, planetas y objetos cotidianos comparten paisajes entre el universo que estudiamos y el que imaginamos.',
+    'In my paintings, observatories, planets, and everyday objects share landscapes between the universe we study and the one we imagine.',
+  ],
+  views: ['Vistas de la pintura', 'Views of painting'],
+  previous: ['Vista anterior', 'Previous view'],
+  next: ['Siguiente vista', 'Next view'],
+  musicIntro: [
+    'Toco la guitarra en Mañana el Espacio, una banda de indie pop radicada en Medellín. Entre guitarras brillantes y melodías que se quedan dando vueltas, nuestras canciones hablan del paso del tiempo y de lo que buscamos cuando todo parece seguir igual.',
+    'I play guitar in Mañana el Espacio, an indie pop band based in Medellín. With bright guitars and melodies that linger, our songs explore the passage of time and what we look for when everything seems to stay the same.',
+  ],
+  bandLink: ['Visitar el sitio de la banda', 'Visit the band’s website'],
+  contact: ['Contacto', 'Contact'],
+  back: ['Volver al inicio', 'Back to top'],
+} as const;
+const label = (key: keyof typeof t) => t[key][locale === 'es' ? 0 : 1];
+
+const images = import.meta.glob<string>(
+  '../../paints/*.jpg',
+  { query: '?url', import: 'default', eager: true },
+);
+const paintingUrl = (file: string) => images[`../../paints/${file}`];
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={translate(profile.bio)} />
+    <link rel="canonical" href={Astro.site ? new URL(canonicalPath, Astro.site).href : canonicalPath} />
+    {languages.map(({ code, href }) => (
+      <link rel="alternate" hreflang={code} href={Astro.site ? new URL(href, Astro.site).href : href} />
+    ))}
+    <title>{profile.name} · Science &amp; Art</title>
+  </head>
+  <body>
+    <a class="skip" href="#contenido">{label('skip')}</a>
+    <header id="inicio" class="shell header">
+      <a class="brand" href="#inicio" lang="en">Science &amp; Art</a>
+      <nav aria-label={label('navigation')}>
+        <a href="#ciencia">{label('science')}</a>
+        <a href="#curriculum">{label('cv')}</a>
+        <a href="#pinturas">{label('paintings')}</a>
+        <a href="#musica">{label('music')}</a>
+      </nav>
+      <nav class="language-switch" aria-label={label('language')}>
+        {languages.map(({ code, label: language, href }) => (
+          <a href={href} lang={code} hreflang={code} aria-current={code === locale ? 'page' : undefined}>{language}</a>
+        ))}
+      </nav>
+    </header>
+
+    <main id="contenido">
+      <div class="shell hero">
+        <div class="hero-copy">
+          <p class="eyebrow">{translate(profile.affiliation)}</p>
+          <h1>Alejandro <span>Murillo González</span></h1>
+          <p class="institution">{profile.institution}</p>
+          <p class="bio">{translate(profile.bio)}</p>
+          <div class="actions">
+            <a class="pill primary" href="#ciencia">{label('researchLink')}</a>
+            <a class="pill" href="#pinturas">{label('paintingsLink')}</a>
+          </div>
+          <div class="hero-contact">
+            <p class="eyebrow">{label('contact')}</p>
+            <ul class="links">
+              {profile.contact.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
+            </ul>
+          </div>
+        </div>
+        <figure class="portrait-stage">
+          <img class="portrait" src={portrait} alt={profile.name} width="1440" height="1800" fetchpriority="high" />
+        </figure>
+      </div>
+
+      <section class="science band" id="ciencia" aria-labelledby="titulo-ciencia">
+        <div class="shell">
+          <div class="section-intro">
+            <h2 id="titulo-ciencia">{label('science')}</h2>
+          </div>
+          <div class="science-grid">
+            <article class="card paper" id="publicaciones">
+              <h3>{label('publications')}</h3>
+              {publications.map(({ title, authors, venue, date, summary, links }) => (
+                <div>
+                  <p class="meta">{venue} · {translate(date)}</p>
+                  <h4 lang="en">{title}</h4>
+                  <p>{translate(authors)}</p>
+                  <p class="paper-summary">{translate(summary)}</p>
+                  <ul class="links">{links.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}</ul>
+                </div>
+              ))}
+            </article>
+            <article class="card software">
+              <img src={fargopyLogo} alt="FARGOpy" width="1536" height="1024" loading="lazy" />
+              <h3>{label('software')}</h3>
+              <p>{label('softwareIntro')}</p>
+              <ul class="links" aria-label={label('softwareLinks')}>
+                <li><a href="https://github.com/seap-udea/fargopy">GitHub</a></li>
+                <li><a href="https://pypi.org/project/fargopy/">PyPI</a></li>
+                <li><a href="https://doi.org/10.5281/zenodo.19430858">Zenodo</a></li>
+              </ul>
+            </article>
+            <article class="card ongoing">
+              <div>
+                <h3>{label('ongoing')}</h3>
+                {research.map(({ title, description }) => (
+                  <div class="research-topic">
+                    <h4>{translate(title)}</h4>
+                    <p>{translate(description)}</p>
+                  </div>
+                ))}
+              </div>
+              <figure>
+                <img src={conference} alt={label('conferenceAlt')} width="1448" height="1086" loading="lazy" />
+                <figcaption>{label('conference')}</figcaption>
+              </figure>
+            </article>
+            <article class="card paper streamlines">
+              <h3>{label('streamTitle')}</h3>
+              <figure>
+                <video controls playsinline preload="none" poster={streamPoster} width="1920" height="1088" aria-label={label('streamAlt')}>
+                  <source src={streamVideo} type="video/mp4" />
+                  <a href={streamVideo}>{label('streamLink')}</a>
+                </video>
+                <figcaption>{label('streamCaption')}</figcaption>
+              </figure>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cv-section" id="curriculum" aria-labelledby="titulo-curriculum">
+        <div class="shell cv-layout">
+          <header class="cv-heading">
+            <h2 id="titulo-curriculum">{label('cv')}</h2>
+            <a class="pill primary" href={cv} download="CV-Alejandro-Murillo.pdf">{label('download')}</a>
+          </header>
+
+          <div class="cv-grid">
+            {[{ label: label('education'), entries: education }, { label: label('experience'), entries: experience }].map(({ label, entries }) => (
+              <div class="cv-card">
+                <h3>{label}</h3>
+                <ol class="cv-timeline">
+                  {entries.map(({ title, institution, period, description }) => (
+                    <li>
+                      <span class="cv-period">{translate(period)}</span>
+                      <h4>{translate(title)}</h4>
+                      <p class="cv-institution">{institution}</p>
+                      <p>{translate(description)}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+
+          <div class="cv-interests" id="intereses">
+            <h3>{label('interests')}</h3>
+            <ul>
+              {interests.map(({ title, description }) => (
+                <li><h4>{translate(title)}</h4><p>{translate(description)}</p></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="shell gallery-section" id="pinturas" aria-labelledby="titulo-pinturas">
+        <header class="gallery-heading">
+          <h2 id="titulo-pinturas">{label('paintings')}</h2>
+          <p><strong>{label('galleryLead')}</strong> {label('galleryIntro')}</p>
+        </header>
+        <div class="gallery">
+          {paintings.map(({ title, views }, index) => (
+            <figure class="painting" data-painting>
+              <div class="painting-views">
+                {views.map(({ file, alt }) => (
+                  <a data-view href={paintingUrl(file)}>
+                    <img src={paintingUrl(file)} alt={translate(alt)} loading="lazy" decoding="async" />
+                  </a>
+                ))}
+              </div>
+              <figcaption>
+                <span class="painting-title">{translate(title)}</span>
+                {views.length > 1 && (
+                  <div class="painting-controls" data-controls hidden role="group" aria-label={`${label('views')} ${index + 1}`}>
+                    <button type="button" data-step="-1" aria-label={label('previous')}>‹</button>
+                    <span data-count aria-live="polite">1 / {views.length}</span>
+                    <button type="button" data-step="1" aria-label={label('next')}>›</button>
+                  </div>
+                )}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <section class="music band" id="musica" aria-labelledby="titulo-musica">
+        <div class="shell music-inner">
+          <div>
+            <p class="eyebrow">{label('music')}</p>
+            <h2 id="titulo-musica">{band.name}</h2>
+            <p class="music-description">{label('musicIntro')}</p>
+            <a class="pill primary" href={band.url}>{label('bandLink')}</a>
+          </div>
+          <div class="record" aria-hidden="true"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="shell footer">
+      <span>{profile.name}</span>
+      <ul class="links">
+        {[...profile.contact, ...profile.links].map(({ href, label }) => <li><a href={href}>{translate(label)}</a></li>)}
+        <li><a href="#inicio">{label('back')}</a></li>
+      </ul>
+    </footer>
+    <script>
+      for (const painting of document.querySelectorAll('[data-painting]')) {
+        const controls = painting.querySelector<HTMLElement>('[data-controls]');
+        const count = painting.querySelector('[data-count]');
+        if (!controls || !count) continue;
+
+        const views = [...painting.querySelectorAll<HTMLElement>('[data-view]')];
+        let current = 0;
+        const showView = () => {
+          views.forEach((view, index) => { view.hidden = index !== current; });
+          count.textContent = `${current + 1} / ${views.length}`;
+        };
+
+        for (const button of controls.querySelectorAll<HTMLButtonElement>('button[data-step]')) {
+          button.addEventListener('click', () => {
+            current = (current + Number(button.dataset.step) + views.length) % views.length;
+            showView();
+          });
+        }
+
+        showView();
+        controls.hidden = false;
+      }
+    </script>
+  </body>
+</html>
